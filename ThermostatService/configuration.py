@@ -5,7 +5,7 @@ import json
 
 class Configuration:
     def __init__(self):
-        self._filepath = os.path.expandvars('$HOME/.config/thermostatservice/configuration.json')
+        self._filepath = os.path.expanduser('~/.config/thermostatservice/configuration.json')
         os.makedirs(os.path.dirname(self._filepath), exist_ok=True)
         self._configuration = {
             'serial':
@@ -28,6 +28,7 @@ class Configuration:
             self.Store()
 
     def Store(self):
+        print(self._filepath)
         with open(self._filepath, 'w') as f:
             json.dump(self._configuration, f, indent=2)
 
@@ -47,4 +48,3 @@ class Configuration:
     @property
     def WebServiceHost(self):
         return self._configuration['webservice']['host']
-

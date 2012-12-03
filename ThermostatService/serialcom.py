@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import serial
+from serial.serialutil import SerialException
 
 class SerialCom:
     def __init__(self, address):
@@ -34,7 +35,7 @@ class SerialCom:
             if checksum == checksum_message:
                 fields = text[1:-3].split(',')
                 if fields[0] == 'TMP':
-                    fields[1] = int(fields[1], 16)
+                    fields[1] = str(fields[1])
                     fields[2] = float(fields[2])
                 elif fields[0] == 'CFG':
                     fields[1] = int(fields[1])
