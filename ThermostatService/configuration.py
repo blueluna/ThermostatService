@@ -14,7 +14,9 @@ class Configuration:
                 },
             'webservice':
                 {
-                    'host': 'http://coldstar.mine.nu/thermostat/'
+                    'host': 'www.example.com',
+                    "uri": "/json/",
+                    "id": 1
                 }
         }
 
@@ -48,3 +50,11 @@ class Configuration:
     @property
     def WebServiceHost(self):
         return self._configuration['webservice']['host']
+
+    @property
+    def WebServiceUri(self):
+        return self._configuration['webservice']['uri']
+
+    @property
+    def WebServiceId(self):
+        return int(self._configuration['webservice']['id'])

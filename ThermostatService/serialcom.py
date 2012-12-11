@@ -41,6 +41,8 @@ class SerialCom:
                     fields[1] = int(fields[1])
                     fields[2] = int(fields[2])
                     fields[3] = int(fields[3])
+                elif fields[0] == 'CTL':
+                    fields[1] = int(fields[1])
                 else:
                     pass
                 return fields
