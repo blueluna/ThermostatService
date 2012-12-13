@@ -21,27 +21,24 @@ def main():
     devices = {}
     device_cfg = None
     service_cfg = None
+    last_cfg = None
     check_timeout = time.time() + 10.0;
     while (True):
         t = time.time()
         try:
             if t > check_timeout:
-                if device_cfg:
-                    service_cfg = feeder.get_configuration(serviceId)
-                    print(service_cfg)
-                    dt_service = parse_date(service_cfg['datetime'])
-                    dt_device = parse_date(device_cfg['datetime'])
-                    if dt_service > dt_device:
-                        com.Write('CFG',
-                            [
-                                service_cfg['mode'], service_cfg['thresholdNormal'], service_cfg['thresholdLow'],
-                                service_cfg['hysteresisUpper'], service_cfg['hysteresisLower'], service_cfg['masterSensor']
+                service_cfg = feeder.get_configuration(serviceId)
+                print(service_cfg)
+                dt_service = parse_date(service_cfg['datetime'])
+                if last_cfg == None or dt_service > last_cfg:
+                    com.Write('CFG',
+                              [
+                            int(service_cfg['mode']), int(service_cfg['thresholdNormal']),
+                            int(service_cfg['thresholdLow']), int(service_cfg['hysteresisUpper']),
+                            int(service_cfg['hysteresisLower']), service_cfg['masterSensor']
                             ])
-                    check_timeout = t + TMP_TIMEOUT
-                else:
-                    if com:
-                        com.Write('CFG', [])
-                    check_timeout = t + 10.0
+                check_timeout = t + TMP_TIMEOUT
+                last_cfg = dt_service
             if com:
                 sentence = com.Read()
                 if sentence is None:

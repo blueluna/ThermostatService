@@ -60,6 +60,7 @@ class SerialCom:
         sentence = ','.join([str(f) for f in fs])
         checksum = self.Checksum(sentence)
         sentence = '${0}*{1:02X}\r\n'.format(sentence, checksum)
+        print(sentence)
         self._port.write(sentence.encode('ascii'))
 
 # 'SCN', Scan for sensors
