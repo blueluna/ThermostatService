@@ -32,7 +32,11 @@ def main():
                     dt_service = parse_date(service_cfg['datetime'])
                     dt_device = parse_date(device_cfg['datetime'])
                     if dt_service > dt_device:
-                        com.Write('CFG', [service_cfg['mode'], service_cfg['thresholdNormal'], service_cfg['thresholdLow']])
+                        com.Write('CFG',
+                            [
+                                service_cfg['mode'], service_cfg['thresholdNormal'], service_cfg['thresholdLow'],
+                                service_cfg['hysteresisUpper'], service_cfg['hysteresisLower'], service_cfg['masterSensor']
+                            ])
                     check_timeout = t + TMP_TIMEOUT
                 else:
                     if com:
@@ -58,18 +62,26 @@ def main():
                             print('time left: {0:.0f}'.format(devices[device]['timeout'] - t))
                     else:
                         devices[device] = {'values': [sentence[2]], 'timeout': t + TMP_TIMEOUT }
-                if sentence[0] == 'CFG' and len(sentence) == 4:
+                if sentence[0] == 'CFG' and len(sentence) == 7:
                     mode = sentence[1]
                     thresholdNormal = sentence[2]
                     thresholdLow = sentence[3]
+                    hysteresisUpper = sentence[4]
+                    hysteresisLower = sentence[5]
+                    masterSensor = sentence[6]
                     dt = datetime.datetime.utcnow().replace(microsecond=0)
                     device_cfg = {
                         'mode': mode,
                         'thresholdNormal': thresholdNormal,
                         'thresholdLow': thresholdLow,
+                        'hysteresisUpper': hysteresisUpper,
+                        'hysteresisLower': hysteresisLower,
+                        'masterSensor': masterSensor,
                         'datetime': dt.isoformat()
                     }
-                    feeder.set_configuration(serviceId, mode, thresholdNormal, thresholdLow)
+                    feeder.set_configuration(
+                        serviceId, mode, thresholdNormal, thresholdLow,
+                        hysteresisUpper, hysteresisLower, masterSensor)
                 if sentence[0] == 'CTL' and len(sentence) == 2:
                     state = sentence[1]
                     feeder.send_state(serviceId, state)

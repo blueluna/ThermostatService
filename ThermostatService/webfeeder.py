@@ -42,9 +42,10 @@ class Webfeeder:
         n = datetime.datetime.utcnow().replace(microsecond=0)
         return self._send_jsonrpc(id, 'thermostat.temperature.add',  [id, n.isoformat(), value])
 
-    def set_configuration(self, id, mode, thresholdNormal, thresholdLow):
+    def set_configuration(self, id, mode, thresholdNormal, thresholdLow, hysteresisUpper, hysteresisLower, masterSensor):
         n = datetime.datetime.utcnow().replace(microsecond=0)
-        return self._send_jsonrpc(id, 'thermostat.set_configuration',  [id, n.isoformat(), mode, thresholdNormal, thresholdLow])
+        return self._send_jsonrpc(id, 'thermostat.set_configuration',
+            [id, n.isoformat(), mode, thresholdNormal, thresholdLow, hysteresisUpper, hysteresisLower, masterSensor])
 
     def get_configuration(self, id):
         return self._send_jsonrpc(id, 'thermostat.get_configuration',  [id])

@@ -41,6 +41,9 @@ class SerialCom:
                     fields[1] = int(fields[1])
                     fields[2] = int(fields[2])
                     fields[3] = int(fields[3])
+                    fields[4] = int(fields[4])
+                    fields[5] = int(fields[5])
+                    fields[6] = fields[6]
                 elif fields[0] == 'CTL':
                     fields[1] = int(fields[1])
                 elif fields[0] == 'AVG':
