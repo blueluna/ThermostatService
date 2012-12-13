@@ -4,6 +4,21 @@ import http
 import json
 import datetime
 import http.client
+from .iso8601 import parse_date
+
+class RPCError(Exception):
+    def __init__(self, code=None, message=None):
+        self._code = code
+        self._message = message
+
+    @property
+    def code(self):
+        return self._code
+
+    @property
+    def message(self):
+        return self._message
+
 
 class Webfeeder:
     def __init__(self, host, uri):
@@ -13,32 +28,30 @@ class Webfeeder:
     def _send_jsonrpc(self, id, method, params):
         client = http.client.HTTPConnection(self._host, timeout=5)
         req = json.dumps({'jsonrpc': '2.0', 'id': id, 'method': method, 'params': params })
-        print(req)
         headers = {'content_type': 'text/javascript; charset=UTF-8'}
         client.request('POST', self._uri, body=req, headers=headers)
         response = client.getresponse()
         body = response.read()
         res = json.loads(body.decode('utf-8'))
-        print(res)
+        if 'error' in res:
+            raise RPCError(res['error']['code'], res['error']['message'])
+        elif 'result' in res:
+            return res['result']
         return res
 
     def send_temperature(self, id, value):
         n = datetime.datetime.utcnow().replace(microsecond=0)
-        try:
-            self._send_jsonrpc(id, 'thermostat.temperature.add',  [id, n.isoformat(), value])
-        except Exception as e:
-            print(e)
+        return self._send_jsonrpc(id, 'thermostat.temperature.add',  [id, n.isoformat(), value])
 
-    def send_configuration(self, id, mode, thresholdNormal, thresholdLow):
+    def set_configuration(self, id, mode, thresholdNormal, thresholdLow):
         n = datetime.datetime.utcnow().replace(microsecond=0)
-        try:
-            self._send_jsonrpc(id, 'thermostat.set_configuration',  [id, n.isoformat(), mode, thresholdNormal, thresholdLow])
-        except Exception as e:
-            print(e)
+        return self._send_jsonrpc(id, 'thermostat.set_configuration',  [id, n.isoformat(), mode, thresholdNormal, thresholdLow])
+
+    def get_configuration(self, id):
+        response = self._send_jsonrpc(id, 'thermostat.get_configuration',  [id])
+        response['datetime'] = parse_date(response['datetime'])
+        return response
 
     def send_state(self, id, state):
         n = datetime.datetime.utcnow().replace(microsecond=0)
-        try:
-            self._send_jsonrpc(id, 'thermostat.set_state',  [id, n.isoformat(), state])
-        except Exception as e:
-            print(e)
+        return self._send_jsonrpc(id, 'thermostat.set_state',  [id, n.isoformat(), state])

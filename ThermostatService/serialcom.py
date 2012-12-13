@@ -43,6 +43,8 @@ class SerialCom:
                     fields[3] = int(fields[3])
                 elif fields[0] == 'CTL':
                     fields[1] = int(fields[1])
+                elif fields[0] == 'AVG':
+                    fields[1] = int(fields[1]) / 10
                 else:
                     pass
                 return fields
