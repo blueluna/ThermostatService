@@ -5,6 +5,7 @@ import bisect
 from .configuration import Configuration
 from .serialcom import SerialCom, SerialException
 from .webfeeder import Webfeeder
+from .iso8601 import parse_date
 
 TMP_TIMEOUT = 300.0
 
@@ -15,8 +16,6 @@ def main():
         com = SerialCom(cfg.SerialPort)
     except SerialException:
         com = None
-    if com:
-        com.Write('CFG', [])
     feeder = Webfeeder(cfg.WebServiceHost, cfg.WebServiceUri)
     serviceId = cfg.WebServiceId
     devices = {}
@@ -30,7 +29,9 @@ def main():
                 if device_cfg:
                     service_cfg = feeder.get_configuration(serviceId)
                     print(service_cfg)
-                    if service_cfg['datetime'] > device_cfg['datetime']:
+                    dt_service = parse_date(service_cfg['datetime'])
+                    dt_device = parse_date(device_cfg['datetime'])
+                    if dt_service > dt_device:
                         com.Write('CFG', [service_cfg['mode'], service_cfg['thresholdNormal'], service_cfg['thresholdLow']])
                     check_timeout = t + TMP_TIMEOUT
                 else:
@@ -66,7 +67,7 @@ def main():
                         'mode': mode,
                         'thresholdNormal': thresholdNormal,
                         'thresholdLow': thresholdLow,
-                        'datetime': dt
+                        'datetime': dt.isoformat()
                     }
                     feeder.set_configuration(serviceId, mode, thresholdNormal, thresholdLow)
                 if sentence[0] == 'CTL' and len(sentence) == 2:

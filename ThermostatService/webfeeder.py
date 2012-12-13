@@ -4,7 +4,6 @@ import http
 import json
 import datetime
 import http.client
-from .iso8601 import parse_date
 
 class RPCError(Exception):
     def __init__(self, code=None, message=None):
@@ -48,9 +47,7 @@ class Webfeeder:
         return self._send_jsonrpc(id, 'thermostat.set_configuration',  [id, n.isoformat(), mode, thresholdNormal, thresholdLow])
 
     def get_configuration(self, id):
-        response = self._send_jsonrpc(id, 'thermostat.get_configuration',  [id])
-        response['datetime'] = parse_date(response['datetime'])
-        return response
+        return self._send_jsonrpc(id, 'thermostat.get_configuration',  [id])
 
     def send_state(self, id, state):
         n = datetime.datetime.utcnow().replace(microsecond=0)
