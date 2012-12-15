@@ -28,7 +28,6 @@ def main():
         try:
             if t > check_timeout:
                 service_cfg = feeder.get_configuration(serviceId)
-                print(service_cfg)
                 dt_service = parse_date(service_cfg['datetime'])
                 if last_cfg == None or dt_service > last_cfg:
                     com.Write('CFG',
@@ -43,7 +42,8 @@ def main():
                 sentence = com.Read()
                 if sentence is None:
                     continue
-                print(sentence)
+                if sentence[0] != 'TMP':
+                    print(sentence)
                 if sentence[0] == 'TMP':
                     device = sentence[1]
                     value = sentence[2]
@@ -56,7 +56,6 @@ def main():
                             devices[device]['values'] = [value]
                         else:
                             bisect.insort(devices[device]['values'], value)
-                            print('time left: {0:.0f}'.format(devices[device]['timeout'] - t))
                     else:
                         devices[device] = {'values': [sentence[2]], 'timeout': t + TMP_TIMEOUT }
                 if sentence[0] == 'CFG' and len(sentence) == 7:

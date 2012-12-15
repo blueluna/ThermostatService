@@ -27,11 +27,13 @@ class Webfeeder:
     def _send_jsonrpc(self, id, method, params):
         client = http.client.HTTPConnection(self._host, timeout=5)
         req = json.dumps({'jsonrpc': '2.0', 'id': id, 'method': method, 'params': params })
+        print(req)
         headers = {'content_type': 'text/javascript; charset=UTF-8'}
         client.request('POST', self._uri, body=req, headers=headers)
         response = client.getresponse()
         body = response.read()
         res = json.loads(body.decode('utf-8'))
+        print(res)
         if 'error' in res:
             raise RPCError(res['error']['code'], res['error']['message'])
         elif 'result' in res:
