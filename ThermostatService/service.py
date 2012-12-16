@@ -4,7 +4,7 @@ import time, datetime
 import bisect
 from .configuration import Configuration
 from .serialcom import SerialCom, SerialException
-from .webfeeder import Webfeeder
+from .webfeeder import Webfeeder, RPCError
 from .iso8601 import parse_date
 
 TMP_TIMEOUT = 300.0
@@ -51,7 +51,12 @@ def main():
                         if t > devices[device]['timeout']:
                             count = len(devices[device]['values'])
                             median = devices[device]['values'][count//2]
-                            feeder.send_temperature(device, median)
+                            try:
+                                feeder.send_temperature(device, median)
+                            except RPCError as error:
+                                print(error.message)
+                            except Exception as error:
+                                print(error)
                             devices[device]['timeout'] = t + TMP_TIMEOUT
                             devices[device]['values'] = [value]
                         else:
@@ -75,16 +80,29 @@ def main():
                         'masterSensor': masterSensor,
                         'datetime': dt.isoformat()
                     }
-                    feeder.set_configuration(
-                        serviceId, mode, thresholdNormal, thresholdLow,
-                        hysteresisUpper, hysteresisLower, masterSensor)
+                    try:
+                        feeder.set_configuration(
+                            serviceId, mode, thresholdNormal, thresholdLow,
+                            hysteresisUpper, hysteresisLower, masterSensor)
+                    except RPCError as error:
+                        print(error.message)
+                    except Exception as error:
+                        print(error)
                 if sentence[0] == 'CTL' and len(sentence) == 2:
                     state = sentence[1]
-                    feeder.send_state(serviceId, state)
+                    try:
+                        feeder.set_state(serviceId, state)
+                    except RPCError as error:
+                        print(error.message)
+                    except Exception as error:
+                        print(error)
                 if sentence[0] == 'SCN':
                     pass
         except KeyboardInterrupt:
             break
+        except Exception as error:
+            print(error)
+            time.sleep(1.0)
     else:
         print("Couldn't open serial port {0}".format(cfg.SerialPort))
     cfg.Store()
