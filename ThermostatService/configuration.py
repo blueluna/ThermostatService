@@ -6,7 +6,8 @@ import json
 class Configuration:
     def __init__(self):
         self._filepath = os.path.expanduser('~/.config/thermostatservice/configuration.json')
-        os.makedirs(os.path.dirname(self._filepath), exist_ok=True)
+        cfgdir = os.path.dirname(self._filepath)
+        os.makedirs(cfgdir, exist_ok=True)
         self._configuration = {
             'serial':
                 {
@@ -17,6 +18,10 @@ class Configuration:
                     'host': 'www.example.com',
                     "uri": "/json/",
                     "id": 1
+                },
+            'logging':
+                {
+                'dir': '/tmp'
                 }
         }
 
@@ -30,7 +35,6 @@ class Configuration:
             self.Store()
 
     def Store(self):
-        print(self._filepath)
         with open(self._filepath, 'w') as f:
             json.dump(self._configuration, f, indent=2)
 
@@ -58,3 +62,11 @@ class Configuration:
     @property
     def WebServiceId(self):
         return int(self._configuration['webservice']['id'])
+
+    @property
+    def LoggingDir(self):
+        d = self._configuration['logging']['dir']
+        d = os.path.expandvars(d)
+        d = os.path.expanduser(d)
+        d = os.path.abspath(d)
+        return str(d)

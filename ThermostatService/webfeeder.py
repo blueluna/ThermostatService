@@ -4,6 +4,7 @@ import http
 import json
 import datetime
 import http.client
+from .log import getLog
 
 class RPCError(Exception):
     def __init__(self, code=None, message=None):
@@ -27,7 +28,7 @@ class Webfeeder:
     def _send_jsonrpc(self, id, method, params, retry_count=3):
         client = http.client.HTTPConnection(self._host, timeout=5)
         req = json.dumps({'jsonrpc': '2.0', 'id': id, 'method': method, 'params': params })
-        print(req)
+        getLog().debug(req)
         headers = {'content_type': 'text/javascript; charset=UTF-8'}
         while True:
             try:
@@ -40,6 +41,7 @@ class Webfeeder:
                 if retry_count <= 0:
                     raise
                 retry_count -= 1
+        getLog().debug(body)
         if 'error' in res:
             raise RPCError(res['error']['code'], res['error']['message'])
         elif 'result' in res:

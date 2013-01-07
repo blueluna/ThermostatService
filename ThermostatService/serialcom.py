@@ -2,6 +2,7 @@
 
 import serial
 from serial.serialutil import SerialException
+from .log import getLog
 
 class SerialCom:
     def __init__(self, address):
@@ -52,7 +53,7 @@ class SerialCom:
                     pass
                 return fields
             else:
-                print('Invalid checksum {0:02x} != {1:02x}'.format(checksum, checksum_message))
+                getLog().warning('Invalid checksum {0:02x} != {1:02x}'.format(checksum, checksum_message))
         return None
 
     def Write(self, method, fields):
@@ -60,7 +61,7 @@ class SerialCom:
         sentence = ','.join([str(f) for f in fs])
         checksum = self.Checksum(sentence)
         sentence = '${0}*{1:02X}\r\n'.format(sentence, checksum)
-        print(sentence)
+        getLog().info(sentence)
         self._port.write(sentence.encode('ascii'))
 
 # 'SCN', Scan for sensors
